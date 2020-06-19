@@ -32,9 +32,13 @@ def mult_matrix(A,B):
 
     return [vec_mult(A[i],B) for i in range(len(A))]
 
+def mat_mult(A,B):
+
+    return [[vec_mult(A[i],column(B,j)) for i in range(len(A))] for j in range(len(B[0]))]
+
 def main():
 
-    with open('in.txt','r') as f:
+    with open('new.txt','r') as f:
 
         n_cases = int(f.readline())
         for case in range(n_cases):
@@ -70,6 +74,10 @@ def main():
                 Q_t[k] = [x/R[k][k] for x in v]
 
             Q = transpose(Q_t,m,n)
+
+            print(A)
+
+            print(mat_mult(Q,R))
             
             ##### back substitution #####
 
@@ -80,7 +88,9 @@ def main():
                     x[k] = (b[k]+sum([-1*R[k][i]*x[i] for i in reversed(range(k)) ]))/R[k][k]
                     o.write(str(x[k])+'\n')
 
+
             print(max([vec_mult(A[i],x)-y[i] for i in range(n)]))
 
             
 main()
+# print(mat_mult([[2,2],[3,3],[3,3]],[[2,2,1],[3,3,2]]))
