@@ -1,5 +1,5 @@
 import math
-
+import numpy as np
 def zeros(m,n):
 
     return [[0 for i in range(n)] for j in range(m)]
@@ -36,6 +36,37 @@ def mat_mult(A,B):
 
     return [[vec_mult(A[i],column(B,j)) for i in range(len(A))] for j in range(len(B[0]))]
 
+def dot(A,B):
+
+    return [A[i]*B[i] for i in range(len(A))]
+
+def gram_schmidt_process(A):
+    """Perform QR decomposition of matrix A using Gram-Schmidt process."""
+    (num_rows, num_cols) = np.shape(A)
+
+    # Initialize empty orthogonal matrix Q.
+    Q = np.empty([num_rows, num_rows])
+    cnt = 0
+
+    # Compute orthogonal matrix Q.
+    for a in A.T:
+        u = np.copy(a)
+        for i in range(0, cnt):
+            # print(Q[:, i].T)
+            # print(Q[:, i])
+            proj = np.dot(np.dot(Q[:, i].T, a), Q[:, i])
+            u -= proj
+
+        e = u / np.linalg.norm(u)
+        Q[:, cnt] = e
+
+        cnt += 1  # Increase columns counter.
+
+    # Compute upper triangular matrix R.
+    R = np.dot(Q.T, A)
+
+    return (Q, R)
+
 def main():
 
     with open('new.txt','r') as f:
@@ -65,21 +96,25 @@ def main():
 
                 for i in range(k):
                     # print(len(Q_t),' ',i)
-                    R[i][k] = vec_mult(Q_t[i],column(A,k))
+                    R[i][k] = vec_mult(Q_t[i],v)
 
                     for j in range(len(tmp_v)):
-                        tmp_v[j] = tmp_v[j] - mult(Q_t[i],R[i][k])[j]
+                        tmp_v[j] = tmp_v[j] - dot(dot(Q_t[i],v),Q_t[i])[j]
 
-                R[k][k] = norm(v)
-                Q_t[k] = [x/R[k][k] for x in v]
+                R[k][k] = norm(tmp_v)
+                Q_t[k] = [x/R[k][k] for x in tmp_v]
 
             Q = transpose(Q_t,m,n)
 
             print(A)
 
-            print(mat_mult(Q,R))
+            # print(R)
             
             ##### back substitution #####
+
+            # Q,R= gram_schmidt_process(np.array(A))
+
+            # print(mat_mult(Q,Q_t))
 
             b = mult_matrix(Q_t,y)
 
@@ -89,7 +124,10 @@ def main():
                     o.write(str(x[k])+'\n')
 
 
-            print(max([vec_mult(A[i],x)-y[i] for i in range(n)]))
+            # print(max([vec_mult(A[i],x)-y[i] for i in range(n)]))
+            print(mat_mult(Q,R))
+            # A[:,0]=0
+            # print(R)
 
             
 main()
