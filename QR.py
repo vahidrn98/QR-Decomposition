@@ -1,5 +1,5 @@
 import math
-import numpy as np
+
 def zeros(m,n):
 
     return [[0 for i in range(n)] for j in range(m)]
@@ -40,42 +40,16 @@ def dot(A,B):
 
     return [A[i]*B[i] for i in range(len(A))]
 
-def gram_schmidt_process(A):
-    """Perform QR decomposition of matrix A using Gram-Schmidt process."""
-    (num_rows, num_cols) = np.shape(A)
-
-    # Initialize empty orthogonal matrix Q.
-    Q = np.empty([num_rows, num_rows])
-    cnt = 0
-
-    # Compute orthogonal matrix Q.
-    for a in A.T:
-        u = np.copy(a)
-        for i in range(0, cnt):
-            # print(Q[:, i].T)
-            # print(Q[:, i])
-            proj = np.dot(np.dot(Q[:, i].T, a), Q[:, i])
-            u -= proj
-
-        e = u / np.linalg.norm(u)
-        Q[:, cnt] = e
-
-        cnt += 1  # Increase columns counter.
-
-    # Compute upper triangular matrix R.
-    R = np.dot(Q.T, A)
-
-    return (Q, R)
-
 def main():
 
-    with open('new.txt','r') as f:
+    with open('in.txt','r') as f:
 
         n_cases = int(f.readline())
         for case in range(n_cases):
             print("test case # ",case+1)
             n = int(f.readline())
             m = int(f.readline())
+            # print("(",n,",",m,")")
             A = zeros(n,m)
             y = zeros_single(n)
             x = zeros_single(m)
@@ -83,38 +57,47 @@ def main():
             R = zeros(m,m)
             v = zeros_single(n)
 
+            impossible = False
+
             for i in range(n):
                 for j in range(m):
                     A[i][j] = float(f.readline())
 
             for i in range(n):
                 y[i] = float(f.readline())
+
             
             for k in range(m):
                 v = column(A,k)
                 tmp_v =v
 
                 for i in range(k):
-                    # print(len(Q_t),' ',i)
+                    
                     R[i][k] = vec_mult(Q_t[i],v)
-
+                    t = column(transpose(Q_t,m,n),i)
                     for j in range(len(tmp_v)):
-                        tmp_v[j] = tmp_v[j] - dot(dot(Q_t[i],v),Q_t[i])[j]
+                        tmp_v[j] = tmp_v[j] - dot(dot(t,v),Q_t[i])[j]
 
+                # print(tmp_v)
                 R[k][k] = norm(tmp_v)
-                Q_t[k] = [x/R[k][k] for x in tmp_v]
+                if(round(R[k][k])==0):
+                    print("no answer")
+                    with open('output.txt','a') as o:
+                        o.write("N\n")
+                    impossible=True
+                    break
+                Q_t[k] = [x/norm(tmp_v) for x in tmp_v]
+            
+            if(impossible):
+                continue
 
             Q = transpose(Q_t,m,n)
 
-            print(A)
-
-            # print(R)
+            
             
             ##### back substitution #####
-
-            # Q,R= gram_schmidt_process(np.array(A))
-
-            # print(mat_mult(Q,Q_t))
+           
+                
 
             b = mult_matrix(Q_t,y)
 
@@ -123,11 +106,7 @@ def main():
                     x[k] = (b[k]+sum([-1*R[k][i]*x[i] for i in reversed(range(k)) ]))/R[k][k]
                     o.write(str(x[k])+'\n')
 
-
-            # print(max([vec_mult(A[i],x)-y[i] for i in range(n)]))
-            print(mat_mult(Q,R))
-            # A[:,0]=0
-            # print(R)
+            
 
             
 main()
