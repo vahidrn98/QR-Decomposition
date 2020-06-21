@@ -58,8 +58,6 @@ def main():
             R = zeros(m,m)
             v = zeros_single(n)
 
-            impossible = False
-
             for i in range(n):
                 for j in range(m):
                     A[i][j] = float(f.readline())
@@ -86,8 +84,6 @@ def main():
                 Q_t[k] = [x/norm(tmp_v) for x in tmp_v]
                 
             
-            if(impossible):
-                continue
 
             Q = transpose(Q_t,m,n)
             
