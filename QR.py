@@ -1,5 +1,5 @@
 import math
-
+import numpy as np
 def zeros(m,n):
 
     return [[0 for i in range(n)] for j in range(m)]
@@ -54,6 +54,7 @@ def main():
             y = zeros_single(n)
             x = zeros_single(m)
             Q_t = zeros(m,n)
+
             R = zeros(m,m)
             v = zeros_single(n)
 
@@ -69,45 +70,45 @@ def main():
             
             for k in range(m):
                 v = column(A,k)
-                tmp_v =v
+                tmp_v =np.copy(v)
 
                 for i in range(k):
                     
                     R[i][k] = vec_mult(Q_t[i],v)
-                    t = column(transpose(Q_t,m,n),i)
-                    for j in range(len(tmp_v)):
-                        tmp_v[j] = tmp_v[j] - dot(dot(t,v),Q_t[i])[j]
+                    
+                    t = Q_t[i]
+                    
+                    tmp_v -= np.dot(np.dot(Q_t[i],v), Q_t[i])
 
-                # print(tmp_v)
                 R[k][k] = norm(tmp_v)
-                if(round(R[k][k])==0):
-                    print("no answer")
-                    with open('output.txt','a') as o:
-                        o.write("N\n")
-                    impossible=True
-                    break
+
+                
                 Q_t[k] = [x/norm(tmp_v) for x in tmp_v]
+                
             
             if(impossible):
                 continue
 
             Q = transpose(Q_t,m,n)
-
-            
             
             ##### back substitution #####
            
-                
-
             b = mult_matrix(Q_t,y)
 
+            
             with open('output.txt','a') as o:
-                for k in reversed(range(m)):
-                    x[k] = (b[k]+sum([-1*R[k][i]*x[i] for i in reversed(range(k)) ]))/R[k][k]
-                    o.write(str(x[k])+'\n')
 
+                for k in  range(m-1,-1,-1):
+                    tmp = b[k]
+                    for i in range(k+1,m):
+                        
+                        tmp -= x[i] * R[k][i]
+                        
+                    x[k] = tmp/R[k][k]
+                print(norm(np.subtract(mult_matrix(A,x),y)))
+                o.write(str(norm(np.subtract(mult_matrix(A,x),y)))+'\n')
             
 
             
 main()
-# print(mat_mult([[2,2],[3,3],[3,3]],[[2,2,1],[3,3,2]]))
+
