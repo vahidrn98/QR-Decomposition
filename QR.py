@@ -105,8 +105,13 @@ def main():
                         tmp -= x[i] * R[k][i]
                         
                     x[k] = tmp/R[k][k]
-                print(norm(np.subtract(mult_matrix(A,x),y)))
-                o.write(str(norm(np.subtract(mult_matrix(A,x),y)))+'\n')
+                error = norm(np.subtract(mult_matrix(A,x),y))
+                print(error)
+                if(error<1e-6):
+                    o.write(str(error)+'\n')
+                else:
+                    print("no answer")
+                    o.write(str("N")+'\n')
             
 
             
